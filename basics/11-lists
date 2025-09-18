@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -ln . .. /boot/
+ls -alr --block-size=k . .. /boot/
