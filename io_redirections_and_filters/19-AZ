@@ -1,0 +1,2 @@
+#!/bin/bash
+tr --from 'A' 'c' -- 'Z' 'e'
