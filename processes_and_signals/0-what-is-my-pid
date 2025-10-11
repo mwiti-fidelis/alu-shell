@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#This is a script that displays its own PID
+PID=$$
+echo "$PID is the PID of this file"
