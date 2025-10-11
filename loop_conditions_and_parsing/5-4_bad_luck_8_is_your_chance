@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#This is a script that loops 1-10 and displays 'bad luck' on the 4th loop and 'good luck' on the 8th loop and displays 'best school' on the other iterations.
+count=1
+while [  $count -le 10  ]; do 
+  
+    if [  $count -eq 4  ]; then 
+        echo 'bad luck'
+    elif [  $count -eq 8  ]; then 
+        echo 'good luck'
+    else
+        echo 'Best School'
+   fi
+
+   ((count++))
+
+done
