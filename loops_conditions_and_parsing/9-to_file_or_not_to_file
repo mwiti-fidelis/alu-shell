@@ -11,13 +11,13 @@ else
     #check if file is empty
 
     if [  ! -s "$file"  ]; then
-	   echo "school is empty"
+	   echo "school file is empty"
     else
-	   echo "school is not empty"
+	   echo "school file is not empty"
     fi
     #check if file is a regular file
     
-    if [  ! -f "$file"  ]; then
+    if [  -f "$file"  ]; then
 	   echo "school is a regular file"
     fi
 fi 
