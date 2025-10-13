@@ -22,31 +22,66 @@ Starts manage_my_process
 Creates a file containing its PID in /var/run/my_process.pid
 Displays manage_my_process restarted
 Displays Usage: manage_my_process {start|stop|restart} if any other argument or no argument is passed
- """
-argv1=$1
-tmpfile="/var/run/my_process.pid"
-startLoop_n_createFile()
-{
-	./manage_my_process &
-	echo "$!" > "$tmpfile"
+"""
+
+PID_FILE="/var/run/my_process.pid"
+LOG_FILE="/tmp/my_process"
+
+# Function: Start the daemon
+start_daemon() {
+    # Start background process
+    (
+        while true; do
+            echo "I am alive!" >> "$LOG_FILE"
+            sleep 2
+        done
+    ) &
+
+    # Save PID
+    echo $! > "$PID_FILE"
+    echo "manage_my_process started"
 }
-killLoop_n_rmFile()
-{
-	#kill "$(cat "$tmpfile")"
-	sudo pkill -f "./manage_my_process"
-	rm "$tmpfile"
+
+# Function: Stop the daemon
+stop_daemon() {
+    if [ ! -f "$PID_FILE" ]; then
+        echo "manage_my_process stopped"
+        return 0
+    fi
+
+    # Get PID
+    PID=$(cat "$PID_FILE")
+
+    # Kill process
+    if kill "$PID" 2>/dev/null; then
+        echo "manage_my_process stopped"
+        rm -f "$PID_FILE"
+    else
+        echo "Failed to stop process (PID: $PID)"
+        exit 1
+    fi
 }
-case "$argv1" in
-	start) echo "manage_my_process started"
-		startLoop_n_createFile
-		;;
-	stop) echo "manage_my_process stopped"
-		killLoop_n_rmFile
-		;;
-	restart) echo "manage_my_process restarted"
-		killLoop_n_rmFile
-		startLoop_n_createFile
-		;;
-	*) echo "Usage: manage_my_process {start|stop|restart}"
-		;;
+
+# Function: Restart
+restart_daemon() {
+    stop_daemon
+    start_daemon
+    echo "manage_my_process restarted"
+}
+
+# Main logic
+case "$1" in
+    start)
+        start_daemon
+        ;;
+    stop)
+        stop_daemon
+        ;;
+    restart)
+        restart_daemon
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
 esac
