@@ -23,59 +23,30 @@ Creates a file containing its PID in /var/run/my_process.pid
 Displays manage_my_process restarted
 Displays Usage: manage_my_process {start|stop|restart} if any other argument or no argument is passed
  """
-PID_FILE="/var/run/my_process.pid"
-LOG_FILE="/tmp/my_process"
-
-start() {
-    if [ -f "$PID_FILE" ]; then
-        echo "Process already running. PID: $(cat $PID_FILE)"
-        exit 1
-    fi
-
-    # Start background process
-    while true; do
-        echo "I am alive!" >> "$LOG_FILE"
-        sleep 2
-    done &
-
-    # Save PID
-    echo $! > "$PID_FILE"
-    echo "manage_my_process started"
+argv1=$1
+tmpfile="/var/run/my_process.pid"
+startLoop_n_createFile()
+{
+	./manage_my_process &
+	echo "$!" > "$tmpfile"
 }
-
-stop() {
-    if [ ! -f "$PID_FILE" ]; then
-        echo "No process running."
-        return 1
-    fi
-
-    # Kill process
-    kill "$(cat $PID_FILE)" 2>/dev/null && \
-        echo "manage_my_process stopped" || \
-        echo "Failed to stop process."
-
-    # Clean up
-    rm -f "$PID_FILE"
+killLoop_n_rmFile()
+{
+	#kill "$(cat "$tmpfile")"
+	sudo pkill -f "./manage_my_process"
+	rm "$tmpfile"
 }
-
-restart() {
-    stop
-    start
-    echo "manage_my_process restarted"
-}
-
-case "$1" in
-    start)
-        start
-        ;;
-    stop)
-        stop
-        ;;
-    restart)
-        restart
-        ;;
-    *)
-        echo "Usage: $0 {start|stop|restart}"
-        exit 1
-        ;;
+case "$argv1" in
+	start) echo "manage_my_process started"
+		startLoop_n_createFile
+		;;
+	stop) echo "manage_my_process stopped"
+		killLoop_n_rmFile
+		;;
+	restart) echo "manage_my_process restarted"
+		killLoop_n_rmFile
+		startLoop_n_createFile
+		;;
+	*) echo "Usage: manage_my_process {start|stop|restart}"
+		;;
 esac
