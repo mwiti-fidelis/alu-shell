@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 #A script to indefinetely print ' To infinity and beyond' with a 2 seconds sleep and can neither use kill or killall commands
 PID=$(pgrep "[4]-to_infinity_and_beyond" | awk '{print $2}')
-[ -n "$PID" ] && echo 15 > /proc/$PID/signal && echo "Terminated."
+[ -n "$PID" ] && echo 15 > /proc/"$PID"/signal && echo "Terminated."
