@@ -23,11 +23,12 @@ Creates a file containing its PID in /var/run/my_process.pid
 Displays manage_my_process restarted
 Displays Usage: manage_my_process {start|stop|restart} if any other argument or no argument is passed
 """
+#!/bin/bash
 
 PID_FILE="/var/run/my_process.pid"
 LOG_FILE="/tmp/my_process"
 
-# Function: Start the daemon
+# Function: Start the daemon (quietly if called from restart)
 start_daemon() {
     # Start background process
     (
@@ -39,49 +40,35 @@ start_daemon() {
 
     # Save PID
     echo $! > "$PID_FILE"
-    echo "manage_my_process started"
 }
 
-# Function: Stop the daemon
+# Function: Stop the daemon (quietly if called from restart)
 stop_daemon() {
     if [ ! -f "$PID_FILE" ]; then
-        echo "manage_my_process stopped"
         return 0
     fi
 
-    # Get PID
     PID=$(cat "$PID_FILE")
-
-    # Kill process
-    if kill "$PID" 2>/dev/null; then
-        echo "manage_my_process stopped"
-        rm -f "$PID_FILE"
-    else
-        echo "Failed to stop process (PID: $PID)"
-        exit 1
-    fi
-}
-
-# Function: Restart
-restart_daemon() {
-    stop_daemon
-    start_daemon
-    echo "manage_my_process restarted"
+    kill "$PID" 2>/dev/null && rm -f "$PID_FILE"
 }
 
 # Main logic
 case "$1" in
     start)
         start_daemon
+        echo "manage_my_process started"
         ;;
     stop)
         stop_daemon
+        echo "manage_my_process stopped"
         ;;
     restart)
-        restart_daemon
+        stop_daemon
+        start_daemon
+        echo "manage_my_process restarted"
         ;;
     *)
-        echo "Usage: $0 {start|stop|restart}"
+        echo "Usage: manage_my_process {start|stop|restart}"
         exit 1
         ;;
 esac
